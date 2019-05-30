@@ -82,7 +82,7 @@ class UserController extends FOSRestController
      *     resource=true
      * )
      *
-     * @FOS\Route("/{id}", requirements={"id"="\d+"} methods={"PATCH"}, name="update_patch")
+     * @FOS\Route("/{id}", requirements={"id"="\d+"}, methods={"PATCH"}, name="update_patch")
      *
      * @FOS\View(serializerGroups={"Users"})
      *
@@ -114,7 +114,7 @@ class UserController extends FOSRestController
      *     resource=true
      * )
      *
-     * @FOS\Route("/{id}", requirements={"id"="\d+"} methods={"PUT"}, name="update_put")
+     * @FOS\Route("/{id}", requirements={"id"="\d+"}, methods={"PUT"}, name="update_put")
      *
      * @FOS\View(serializerGroups={"Users"})
      *
