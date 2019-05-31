@@ -2,17 +2,25 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Model\BaseInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints\Email;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  * @Serializer\ExclusionPolicy("all")
+ *
+ * @UniqueEntity(fields="email", message="Sorry, this email address is already in use.")
+ * @UniqueEntity(fields="username", message="Sorry, this username is already taken.")
+ *
  */
-class User extends BaseUser
+class User extends BaseUser implements BaseInterface
 {
     /**
      * @ORM\Id
@@ -27,6 +35,11 @@ class User extends BaseUser
      * @var string
      * @Serializer\Expose()
      * @Serializer\Groups({"Users"})
+     *
+     * @Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      */
     protected $email;
 
@@ -51,10 +64,16 @@ class User extends BaseUser
      */
     protected $lastName;
 
+    /**
+     * @var Client $clients
+     * @ORM\ManyToMany(targetEntity="Client", inversedBy="users")
+     */
+    protected $clients;
+
     public function __construct()
     {
         parent::__construct();
-        // your own logic
+        $this->clients = new ArrayCollection();
     }
 
     /**
@@ -105,4 +124,48 @@ class User extends BaseUser
         return $this->lastName;
     }
 
+
+    /**
+     * Add client
+     *
+     * @param \AppBundle\Entity\Client $client
+     *
+     * @return User
+     */
+    public function addClient(Client $client)
+    {
+        if (!$this->clients->contains($client)) {
+            $this->clients[] = $client;
+            $client->addUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove client
+     *
+     * @param \AppBundle\Entity\Client $client
+     *
+     * @return User
+     */
+    public function removeClient(Client $client)
+    {
+        if ($this->clients->contains($client)) {
+            $this->clients->removeElement($client);
+            $client->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get clients
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getClients()
+    {
+        return $this->clients;
+    }
 }
