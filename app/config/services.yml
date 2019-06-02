@@ -10,3 +10,8 @@ services:
     active_app.client_manager:
         class: AppBundle\Manager\ClientManager
         arguments: ['@client_repository']
+    app.client_voter:
+        class:  AppBundle\Security\ClientVoter
+        tags:
+          - { name: security.voter }
+        public: false

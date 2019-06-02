@@ -6,6 +6,7 @@ use AppBundle\Entity\Client;
 use AppBundle\Entity\Company;
 use AppBundle\Form\Type\ClientType;
 use AppBundle\Manager\ClientManager;
+use AppBundle\Security\ClientVoter;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
@@ -96,6 +97,8 @@ class ClientController extends FOSRestController
         /** @var ClientManager $clientManager */
         $clientManager = $this->get('active_app.client_manager');
         $client = $clientManager->createClient();
+
+        $this->denyAccessUnlessGranted(ClientVoter::CREATE, $client);
 
         if ($company_id = $request->request->get('company_id')) {
             /** @var Company $company */

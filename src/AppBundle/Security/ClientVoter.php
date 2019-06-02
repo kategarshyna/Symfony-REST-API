@@ -2,6 +2,10 @@
 
 namespace AppBundle\Security;
 
+use AppBundle\Entity\Client;
+use AppBundle\Entity\User;
+use JMS\DiExtraBundle\Annotation\Service;
+use JMS\DiExtraBundle\Annotation\Tag;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -11,6 +15,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  */
 class ClientVoter extends Voter
 {
+    const CREATE = 'create';
     /**
      * Determines if the attribute and subject are supported by this voter.
      *
@@ -21,7 +26,15 @@ class ClientVoter extends Voter
      */
     protected function supports($attribute, $subject)
     {
-        // TODO: Implement supports() method.
+        if (!in_array($attribute, array(self::CREATE))) {
+            return false;
+        }
+
+        if (!$subject instanceof Client) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -36,6 +49,22 @@ class ClientVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        // TODO: Implement voteOnAttribute() method.
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        switch ($attribute) {
+            case self::CREATE:
+                return $this->canCreate($user);
+        }
+
+        throw new \LogicException('This code should not be reached!');
+    }
+
+    protected function canCreate(User $user)
+    {
+        return $user->hasRole($user::ROLE_SUPER_ADMIN);
     }
 }
