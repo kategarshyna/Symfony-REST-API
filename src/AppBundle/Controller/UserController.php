@@ -2,19 +2,17 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\AppBundle;
 use AppBundle\Entity\User;
+use AppBundle\Form\Type\UserType;
 use AppBundle\Manager\UserManager;
 use FOS\RestBundle\Request\ParamFetcher;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use FOS\RestBundle\View\View;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use JMS\DiExtraBundle\Annotation\Inject;
-use JMS\DiExtraBundle\Annotation\InjectParams;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use FOS\RestBundle\Controller\Annotations as FOS;
 use FOS\RestBundle\Controller\FOSRestController;
-use FOS\RestBundle\Controller\Annotations\RequestParam;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Class UserController
@@ -22,10 +20,87 @@ use FOS\RestBundle\Controller\Annotations\QueryParam;
 class UserController extends FOSRestController
 {
     /**
-     * ---------------------------------------
-     * -- MAKE ALL THE CHANGES YOU SEE FIT. --
-     * ---------------------------------------
+     * Get all users. Filter by username.
+     *
+     * ### Response ###
+     *  <code>
+     *       "user": {
+     *         "id": ##,
+     *         "email": string,
+     *         "username": string,
+     *         "roles": array
+     *         "groups": array
+     *         "first_name": string,
+     *         "last_name": string,
+     *         "clients": array
+     *       }
+     * </code>
+     *
+     * @ApiDoc(
+     *     section = "User",
+     *     description="Get all users. Filter by username.",
+     *     statusCodes={200 = "OK", 400 = "Bad request"},
+     *     resource=true
+     * )
+     *
+     * @param ParamFetcher $paramFetcher
+     *
+     * @FOS\QueryParam(name="username", requirements="[a-zA-Z]+", strict=true, nullable=true, allowBlank=true)
+     *
+     * @FOS\Route("/users/all", methods={"GET"})
+     *
+     * @return array
      */
+    public function getUsersAllAction(ParamFetcher $paramFetcher)
+    {
+        if (!empty($paramFetcher->get('username'))) {
+            return $this->getDoctrine()->getRepository('AppBundle:User')->findBy([
+                "username" => $paramFetcher->get('username')
+            ]);
+        }
+
+        return $this->getDoctrine()->getRepository('AppBundle:User')->findAll();
+    }
+
+
+    /**
+     * Gets an user by id.
+     *
+     * ### Response ###
+     *  <code>
+     *       "user": {
+     *         "id": ##,
+     *         "email": string,
+     *         "username": string,
+     *         "roles": array
+     *         "groups": array
+     *         "first_name": string,
+     *         "last_name": string,
+     *         "clients": array
+     *       }
+     * </code>
+     *
+     * @ApiDoc(
+     *     section = "User",
+     *     description="Get user by id.",
+     *     statusCodes={200 = "OK", 400 = "Bad request"},
+     *     resource=true
+     * )
+     *
+     * @param ParamFetcher $paramFetcher
+     *
+     * @FOS\QueryParam(name="id", requirements="\d+", strict=true, nullable=false, allowBlank=false)
+     *
+     * @FOS\Route("/users", methods={"GET"})
+     *
+     * @return User
+     */
+    public function getUserAction(ParamFetcher $paramFetcher)
+    {
+        return $this->getDoctrine()->getRepository('AppBundle:User')->findOneBy([
+            'id' => $paramFetcher->get('id')
+        ]);
+    }
 
     /**
      * Gets an user profile through it's email.
@@ -36,8 +111,11 @@ class UserController extends FOSRestController
      *         "id": ##,
      *         "email": string,
      *         "username": string,
-     *         "firstname": string,
-     *         "lastname": string,
+     *         "roles": array
+     *         "groups": array
+     *         "first_name": string,
+     *         "last_name": string,
+     *         "clients": array
      *       }
      * </code>
      *
@@ -70,8 +148,11 @@ class UserController extends FOSRestController
      *         "id": ##,
      *         "email": string,
      *         "username": string,
-     *         "firstname": string,
-     *         "lastname": string,
+     *         "roles": array
+     *         "groups": array
+     *         "first_name": string,
+     *         "last_name": string,
+     *         "clients": array
      *       }
      * </code>
      *
@@ -82,46 +163,39 @@ class UserController extends FOSRestController
      *     resource=true
      * )
      *
-     * @FOS\Route("/{id}", requirements={"id"="\d+"}, methods={"PATCH"}, name="update_patch")
+     * @param Request $request
+     * @param ParamFetcher $paramFetcher
      *
-     * @FOS\View(serializerGroups={"Users"})
+     * @FOS\QueryParam(name="id", requirements="\d+", strict=true, nullable=false, allowBlank=false)
      *
-     * @return User
+     * @FOS\RequestParam(name="username", requirements="[a-zA-Z]+", strict=true, nullable=false, allowBlank=false)
+     * @FOS\RequestParam(name="email", requirements=".+", strict=true, nullable=false, allowBlank=false)
+     * @FOS\RequestParam(name="first_name", requirements=".+", strict=true, nullable=true, allowBlank=true)
+     * @FOS\RequestParam(name="last_name", requirements=".+", strict=true, nullable=true, allowBlank=true)
+     *
+     * @FOS\Route("/users", methods={"PATCH"})
+     *
+     * @return View
      */
-    public function patchAction(ParamFetcher $paramFetcher)
+    public function patchUserAction(Request $request, ParamFetcher $paramFetcher)
     {
-        return new User();
-    }
+        /** @var UserManager $userManager */
+        $userManager = $this->get('active_app.user_manager');
+        $user = $userManager->getFind($paramFetcher->get('id'));
 
-    /**
-     * Update a User
-     *
-     * ### Response ###
-     *  <code>
-     *       "user": {
-     *         "id": ##,
-     *         "email": string,
-     *         "username": string,
-     *         "firstname": string,
-     *         "lastname": string,
-     *       }
-     * </code>
-     *
-     * @ApiDoc(
-     *     section = "User",
-     *     description="Update an user profile info.",
-     *     statusCodes={200 = "OK", 400 = "Bad request"},
-     *     resource=true
-     * )
-     *
-     * @FOS\Route("/{id}", requirements={"id"="\d+"}, methods={"PUT"}, name="update_put")
-     *
-     * @FOS\View(serializerGroups={"Users"})
-     *
-     * @return User
-     */
-    public function putAction(ParamFetcher $paramFetcher)
-    {
-        return new User();
+        if (!$user) {
+            throw new ResourceNotFoundException;
+        }
+
+        $form = $this->createForm(new UserType(), $user);
+        $form->submit($request->request->all(), false);
+        if ($form->isValid()) {
+            $manager = $this->getDoctrine()->getManager();
+            $manager->flush();
+
+            return $this->view($user, Response::HTTP_OK);
+        }
+
+        return $this->view($form->getErrors(), Response::HTTP_BAD_REQUEST);
     }
 }

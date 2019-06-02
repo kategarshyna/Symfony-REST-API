@@ -2,6 +2,8 @@
 
 namespace AppBundle\Manager;
 
+use AppBundle\Entity\Client;
+use AppBundle\Repository\ClientRepository;
 use JMS\DiExtraBundle\Annotation\Service;
 
 /**
@@ -9,5 +11,16 @@ use JMS\DiExtraBundle\Annotation\Service;
  */
 class ClientManager extends BaseManager
 {
-    // TODO: modify it as needed
+    public function __construct(ClientRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * @return Client
+     */
+    public function createClient()
+    {
+        return new Client();
+    }
 }

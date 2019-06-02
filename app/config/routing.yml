@@ -1,6 +1,18 @@
 app_api_user:
     resource: "@AppBundle/Controller/UserController.php"
     type: rest
+    prefix: /api/v1
+
+app_api_client:
+    resource: "@AppBundle/Controller/ClientController.php"
+    type: rest
+    prefix: /api/v1
+
+
+app_api_company:
+    resource: "@AppBundle/Controller/CompanyController.php"
+    type: rest
+    prefix: /api/v1
 
 fos_oauth_server_token:
     resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"

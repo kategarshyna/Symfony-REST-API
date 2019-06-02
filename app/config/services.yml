@@ -7,3 +7,6 @@ services:
     active_app.user_manager:
         class: AppBundle\Manager\UserManager
         arguments: ['@user_repository', '@fos_user.util.token_generator.default']
+    active_app.client_manager:
+        class: AppBundle\Manager\ClientManager
+        arguments: ['@client_repository']

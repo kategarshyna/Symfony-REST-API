@@ -20,6 +20,10 @@ security:
             pattern:    ^/api/doc
             security:   false
 
+        api_v1:
+            pattern:    ^/api/v1
+            security:   false
+
         # disables authentication for assets and the profiler, adapt it according to your needs
 
         oauth_token:
