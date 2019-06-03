@@ -18,7 +18,7 @@ class MailManager
      *
      * @param   string   $template      email template
      * @param   mixed    $parameters    custom params for template
-     * @param   string   $to            to email address or array of email addresses
+     * @param   mixed    $to            to email address or array of email addresses
      * @param   string   $from          from email address
      * @param   string   $fromName      from name
      *

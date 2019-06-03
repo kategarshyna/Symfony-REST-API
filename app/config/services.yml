@@ -18,3 +18,8 @@ services:
     mail_manager:
         class:     AppBundle\Manager\MailManager
         arguments: ["@mailer", "@twig"]
+    client.entity.listener:
+        class: AppBundle\EventListener\ClientListener
+        arguments: ["@mail_manager", '@security.token_storage', "%from_name%", "%from_email%" ]
+        tags:
+          - { name: doctrine.event_subscriber, connection: default }

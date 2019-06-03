@@ -1,0 +1,21 @@
+{% block subject %}
+    New Client created
+{% endblock %}
+
+{% block body_text %}
+    {% autoescape false %}
+        Name: {{ name }}
+        Message: {{ message }}
+        Email address: {{ email }}
+        Phone: {{ phone }}
+    {% endautoescape %}
+{% endblock %}
+
+{% block body_html %}
+    {% autoescape false %}
+        <p>Name: {{ name }}</p>
+        <p>Message: {{ message }}</p>
+        <p>Email address: {{ email }}</p>
+        <p>Phone: {{ phone }}</p>
+    {% endautoescape %}
+{% endblock %}
