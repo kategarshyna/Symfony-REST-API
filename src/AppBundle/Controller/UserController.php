@@ -62,6 +62,23 @@ class UserController extends FOSRestController
         return $this->getDoctrine()->getRepository('AppBundle:User')->findAll();
     }
 
+    public function sendUserUpdatedEmail($data)
+    {
+        $mail_params = array(
+            'firstName' => $data["firstName"],
+            'lastName' => $data["lastName"],
+            'message' => $data["message"],
+            'email' => $data["email"]
+        );
+
+        $to = $data["email"];
+        $from = $this->container->getParameter('from_email');
+        $fromName = $this->container->getParameter('from_name');
+
+        $message = $this->container->get('mail_manager');
+
+        return $message->sendEmail('updated', $mail_params, $to, $from, $fromName);
+    }
 
     /**
      * Gets an user by id.
@@ -180,6 +197,7 @@ class UserController extends FOSRestController
     {
         /** @var UserManager $userManager */
         $userManager = $this->get('active_app.user_manager');
+        /** @var User $user */
         $user = $userManager->getFind($paramFetcher->get('id'));
 
         if (!$user) {
@@ -191,6 +209,13 @@ class UserController extends FOSRestController
         if ($form->isValid()) {
             $manager = $this->getDoctrine()->getManager();
             $manager->flush();
+
+            $this->sendUserUpdatedEmail([
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'message' => 'User data updated',
+                'email' => $user->getEmail()
+            ]);
 
             return $this->view($user, Response::HTTP_OK);
         }

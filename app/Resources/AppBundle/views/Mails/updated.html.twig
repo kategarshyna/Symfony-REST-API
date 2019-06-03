@@ -1,0 +1,19 @@
+{% block subject %}
+    Hello {{ firstName }} {{ lastName }}, your profile data has been recently updated
+{% endblock %}
+
+{% block body_text %}
+    {% autoescape false %}
+        Name: {{ firstName }} {{ lastName }}
+        Message: {{ message }}
+        Email address: {{ email }}
+    {% endautoescape %}
+{% endblock %}
+
+{% block body_html %}
+    {% autoescape false %}
+        <p>Name: {{ firstName }} {{ lastName }}</p>
+        <p>Message: {{ message }}</p>
+        <p>Email address: {{ email }}</p>
+    {% endautoescape %}
+{% endblock %}
